@@ -8,6 +8,7 @@ import (
 
 	"github.com/ananikitina/notes-rest/internal/database"
 	"github.com/ananikitina/notes-rest/internal/models"
+	"github.com/ananikitina/notes-rest/internal/services"
 	_ "github.com/lib/pq"
 )
 
@@ -19,9 +20,29 @@ func AddNoteHandler() http.HandlerFunc {
 			return
 		}
 
+		spellChecker := services.NewYandexSpellChecker()
+
+		// Spell check
+		spellErrors, err := spellChecker.Check(note.Content)
+		if err != nil {
+			fmt.Println(err)
+			http.Error(w, "Failed to check spelling", http.StatusInternalServerError)
+			return
+		}
+
+		// Return errors if found
+		if len(spellErrors) > 0 {
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(map[string]interface{}{
+				"message": "Spelling errors found",
+				"errors":  spellErrors,
+			})
+			return
+		}
+
 		note.CreatedAt = time.Now()
 
-		_, err := database.DB.Exec(`
+		_, err = database.DB.Exec(`
 		INSERT INTO notes (content, user_id)  
 		VALUES ($1,$2)
 		RETURNING id;
