@@ -1,0 +1,116 @@
+# Notes REST API Service
+[Read this in English](./README.md)
+## Описание
+
+Проект представляет собой REST API сервис, разработанный на языке Go, который предоставляет интерфейс для работы с заметками. Сервис позволяет добавлять заметки, выводить список заметок и управлять доступом к ним через аутентификацию и авторизацию (JWT). Валидация орфографических ошибок в заметках осуществляется через интеграцию с внешним сервисом (Яндекс.Спеллер).
+
+## Архитектура
+
+- **Язык программирования:** Go
+- **Фреймворк веб-сервера:** "net/http"
+- **Маршрутизация:** chi
+- **База данных:** PostgreSQL
+- **Аутентификация:** JWT (JSON Web Token)
+- **Валидация орфографии:** интеграция с Яндекс.Спеллер
+- **Контейнеризация:** Docker
+
+## Запуск проекта
+
+### Предварительные требования
+
+- **Go:** 1.18 или выше
+- **PostgreSQL:** 13.x или выше
+- **Docker:** 20.10 или выше
+- **Docker Compose:** 1.27 или выше
+- **Postman:** 7.0 или выше (для работы с коллекцией Postman)
+
+### Команды для запуска
+
+1. Клонируйте репозиторий и перейдите в директорию проекта:
+    ```bash
+    git clone https://github.com/ananikitina/notes-rest.git
+    cd notes-rest
+    ```
+
+2. Запустите контейнеры:
+    ```bash
+    docker-compose up --build
+    ```
+
+3. API будет доступен по адресу `http://localhost:8080`.
+
+## Коллекция Postman
+
+Вы можете импортировать коллекцию Postman для удобного тестирования API. Файл коллекции доступен в корне проекта: `./Notes REST.postman_collection.json`.
+
+## Примеры curl запросов
+
+#### Регистрация пользователя (необязательно, можно использовать предустановленных пользователей)
+
+```bash
+curl -X POST http://localhost:8080/register \
+-H "Content-Type: application/json" \
+-d '{
+  "email": "mark@example.com",
+  "password": "password789",
+  "role": "user"
+}'
+```
+
+#### Авторизация и получение JWT токена (сохраняем токен для дальнейших действий)
+
+```bash
+curl -X POST http://localhost:8080/login \
+-H "Content-Type: application/json" \
+-d '{
+  "email": "mark@example.com",
+  "password": "password789"
+}'
+```
+#### Создание заметки
+```bash
+curl -X POST http://localhost:8080/note \
+-H "Content-Type: application/json" \
+-H "Authorization: Bearer <insert_token>" \
+-d '{
+  "content": "This is a sample note"
+}'
+```
+#### Получение списка заметок
+```bash
+curl -X GET http://localhost:8080/notes \
+-H "Authorization: Bearer <insert_token>"
+```
+#### Получение списка всех заметок (для админа)
+```bash
+curl -X GET http://localhost:8080/admin/allnotes \
+-H "Authorization: Bearer <admin_token>"
+```
+
+## Структура проекта
+
+- **cmd/** - основная точка входа в приложение.
+- **internal/** - бизнес-логика и основной код приложения.
+  - **config/** - конфигурации приложения.
+  - **database/** - подключение и миграции базы данных.
+  - **domain/** - определение интерфейсов.
+  - **handlers/** - HTTP хендлеры для обработки запросов.
+  - **middleware/** - промежуточное ПО для обработки запросов.
+  - **models/** - описание моделей данных.
+  - **repository** - реализация работы с базой данных.
+  - **services/** - реализация сервисов (JWT, валидация).
+  - **usecases/** - бизнес-логика и работа с данными.
+- **migrations/** - SQL миграции для создания и обновления схемы базы данных.
+
+## Предустановленные пользователи
+
+- **Admin:**
+  - **Email:** `admin@ex.com`
+  - **Password:** `adminpassword`
+  - **Role:** `admin`
+
+- **User:**
+  - **Email:** `user@ex.com`
+  - **Password:** `userpassword`
+  - **Role:** `user`
+
