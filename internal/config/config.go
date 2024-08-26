@@ -10,6 +10,7 @@ import (
 type Config struct {
 	PostgresURL    string
 	ExternalAPIURL string
+	JWTSecret      string
 }
 
 func LoadConfig() (*Config, error) {
@@ -20,6 +21,7 @@ func LoadConfig() (*Config, error) {
 	config := &Config{
 		PostgresURL:    os.Getenv("POSTGRES_URL"),
 		ExternalAPIURL: os.Getenv("EXTERNAL_API_URL"),
+		JWTSecret:      os.Getenv("JWT_SECRET"),
 	}
 
 	return config, nil

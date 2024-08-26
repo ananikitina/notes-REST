@@ -9,29 +9,62 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/ananikitina/notes-rest/internal/config"
 	"github.com/ananikitina/notes-rest/internal/database"
 	"github.com/ananikitina/notes-rest/internal/handlers"
+	"github.com/ananikitina/notes-rest/internal/middleware"
+	"github.com/ananikitina/notes-rest/internal/repository"
+	"github.com/ananikitina/notes-rest/internal/services"
+	"github.com/ananikitina/notes-rest/internal/usecases"
+	"github.com/go-chi/chi"
 )
 
 func Start() {
 	log.Println("Starting application...")
 
+	cfg, err := config.LoadConfig()
+	if err != nil {
+		log.Fatalf("Failed to load configuration:%v", err)
+	}
+
 	// Connect to database
-	_, err := database.ConnectDB()
+	_, err = database.ConnectDB()
 	if err != nil {
 		log.Fatalf("Could not connect to the database: %v", err)
 	}
 	defer database.DB.Close()
 
-	// Set up router
-	mux := http.NewServeMux()
-	mux.HandleFunc("/notes", handlers.GetNotesHandler())
-	mux.HandleFunc("/note", handlers.AddNoteHandler())
+	//Initialize the JWT service
+	jwtService := services.NewJWTService(cfg)
+
+	//Initialize the User repository, use case and handler
+	userRepo := repository.NewUserRepository(database.DB)
+	userUseCase := usecases.NewUserUseCase(userRepo)
+	userHandler := handlers.NewUserHandler(userUseCase, jwtService)
+
+	//Initialize the Note repository, use case and handler
+	noteRepo := repository.NewNoteRepository(database.DB)
+	noteUseCase := usecases.NewNoteUseCase(noteRepo)
+	noteHandler := handlers.NewNoteHandler(noteUseCase)
+
+	// Set up the router
+	r := chi.NewRouter()
+
+	//Public routes
+	r.Post("/register", userHandler.RegisterHndler())
+	r.Post("/login", userHandler.LoginHandler())
+
+	// Protected routes
+	r.Group(func(r chi.Router) {
+		r.Use(middleware.AuthMiddleware(jwtService))
+		r.Get("/notes", noteHandler.GetNotesHandler())
+		r.Post("/note", noteHandler.AddNoteHandler())
+	})
 
 	// Create and configure the HTTP server
 	server := &http.Server{
 		Addr:    ":8080",
-		Handler: mux,
+		Handler: r,
 	}
 
 	// Start the HTTP server in a separate goroutine
