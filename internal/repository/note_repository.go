@@ -47,3 +47,21 @@ func (n *noteRepository) GetByUserID(userID int) ([]models.Note, error) {
 	}
 	return notes, rows.Err()
 }
+
+func (n *noteRepository) GetAllNotes() ([]models.Note, error) {
+	rows, err := n.DB.Query("SELECT id, content, user_id, created_at FROM notes")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var notes []models.Note
+	for rows.Next() {
+		var note models.Note
+		if err := rows.Scan(&note.ID, &note.Content, &note.UserID, &note.CreatedAt); err != nil {
+			return nil, err
+		}
+		notes = append(notes, note)
+	}
+	return notes, nil
+}

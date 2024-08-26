@@ -18,13 +18,18 @@ func NewUserHandler(userUseCase *usecases.UserUseCase, jwtService domain.JWTServ
 	return &UserHandler{userUseCase: userUseCase, jwtService: jwtService}
 }
 
-func (u *UserHandler) RegisterHndler() http.HandlerFunc {
+func (u *UserHandler) RegisterHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var user models.User
 		if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
 			http.Error(w, "Invalid input", http.StatusBadRequest)
 			return
 		}
+		//default role "user" if empty
+		if user.Role == "" {
+			user.Role = "user"
+		}
+
 		if err := u.userUseCase.Register(&user); err != nil {
 			http.Error(w, err.Error(), http.StatusConflict)
 			return
@@ -49,7 +54,7 @@ func (u *UserHandler) LoginHandler() http.HandlerFunc {
 			http.Error(w, "Invalid email or password", http.StatusUnauthorized)
 			return
 		}
-		token, err := u.jwtService.GenerateToken(user.ID)
+		token, err := u.jwtService.GenerateToken(user.ID, user.Role)
 		if err != nil {
 			http.Error(w, "Failed to generate token", http.StatusInternalServerError)
 			return

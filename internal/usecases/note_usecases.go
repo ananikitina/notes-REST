@@ -22,3 +22,7 @@ func (n *NoteUseCase) AddNote(note models.Note) error {
 func (n *NoteUseCase) GetNotesByUserID(userID int) ([]models.Note, error) {
 	return n.noteRepo.GetByUserID(userID)
 }
+
+func (n *NoteUseCase) GetAllNotes() ([]models.Note, error) {
+	return n.noteRepo.GetAllNotes()
+}

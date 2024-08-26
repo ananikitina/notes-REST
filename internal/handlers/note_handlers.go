@@ -85,3 +85,16 @@ func (n *NoteHandler) GetNotesHandler() http.HandlerFunc {
 		json.NewEncoder(w).Encode(notes)
 	}
 }
+
+func (n *NoteHandler) GetAllNotesHandler() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		notes, err := n.noteUseCase.GetAllNotes()
+		if err != nil {
+			fmt.Println(err)
+			http.Error(w, "Failed to fetch all notes", http.StatusInternalServerError)
+			return
+		}
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(notes)
+	}
+}

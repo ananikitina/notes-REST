@@ -26,9 +26,10 @@ func NewJWTService(cfg *config.Config) domain.JWTServiceInterface {
 // }
 
 // GenerateToken creates a JWT token for a user.
-func (j *JWTService) GenerateToken(userID int) (string, error) {
+func (j *JWTService) GenerateToken(userID int, userRole string) (string, error) {
 	claims := &domain.Claims{
-		UserID: userID,
+		UserID:   userID,
+		UserRole: userRole,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 72)),
 			Issuer:    j.issuer,

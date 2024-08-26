@@ -6,4 +6,5 @@ import "github.com/ananikitina/notes-rest/internal/models"
 type NoteRepository interface {
 	Add(note models.Note) error
 	GetByUserID(userID int) ([]models.Note, error)
+	GetAllNotes() ([]models.Note, error)
 }

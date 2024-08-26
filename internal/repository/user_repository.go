@@ -26,8 +26,8 @@ func (u *UserRepository) CreateUser(user *models.User) error {
 	user.Password = string(hashedPassword)
 
 	_, err = u.DB.Exec(
-		"INSERT INTO users (email,password) VALUES ($1, $2)",
-		user.Email, user.Password)
+		"INSERT INTO users (email,password,role) VALUES ($1, $2,$3)",
+		user.Email, user.Password, user.Role)
 	return err
 }
 
@@ -36,8 +36,8 @@ func (u *UserRepository) GetUserByEmail(email string) (*models.User, error) {
 	var user models.User
 
 	err := u.DB.QueryRow(
-		"SELECT id, email, password FROM users WHERE email = $1", email).
-		Scan(&user.ID, &user.Email, &user.Password)
+		"SELECT id, email, password, role FROM users WHERE email = $1", email).
+		Scan(&user.ID, &user.Email, &user.Password, &user.Role)
 	if err != nil {
 		return nil, err
 	}

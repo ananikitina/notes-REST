@@ -51,7 +51,7 @@ func Start() {
 	r := chi.NewRouter()
 
 	//Public routes
-	r.Post("/register", userHandler.RegisterHndler())
+	r.Post("/register", userHandler.RegisterHandler())
 	r.Post("/login", userHandler.LoginHandler())
 
 	// Protected routes
@@ -59,6 +59,11 @@ func Start() {
 		r.Use(middleware.AuthMiddleware(jwtService))
 		r.Get("/notes", noteHandler.GetNotesHandler())
 		r.Post("/note", noteHandler.AddNoteHandler())
+
+		r.Group(func(r chi.Router) {
+			r.Use(middleware.AdminOnlyMiddleware)
+			r.Get("/allnotes", noteHandler.GetAllNotesHandler())
+		})
 	})
 
 	// Create and configure the HTTP server
