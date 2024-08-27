@@ -18,6 +18,7 @@ func NewUserHandler(userUseCase *usecases.UserUseCase, jwtService domain.JWTServ
 	return &UserHandler{userUseCase: userUseCase, jwtService: jwtService}
 }
 
+// RegisterHandler creates new user.
 func (u *UserHandler) RegisterHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var user models.User
@@ -39,6 +40,7 @@ func (u *UserHandler) RegisterHandler() http.HandlerFunc {
 	}
 }
 
+// LoginHandler authenticates the user.
 func (u *UserHandler) LoginHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var cred struct {

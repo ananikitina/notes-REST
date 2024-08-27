@@ -21,6 +21,7 @@ func NewNoteHandler(noteUseCase *usecases.NoteUseCase) *NoteHandler {
 	return &NoteHandler{noteUseCase: noteUseCase}
 }
 
+// AddNoteHandler adds notes for the specified user.
 func (n *NoteHandler) AddNoteHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
@@ -42,7 +43,7 @@ func (n *NoteHandler) AddNoteHandler() http.HandlerFunc {
 			return
 		}
 
-		// Return errors if found
+		// Return spelling errors if found
 		if len(spellErrors) > 0 {
 			w.WriteHeader(http.StatusBadRequest)
 			json.NewEncoder(w).Encode(map[string]interface{}{
@@ -66,26 +67,25 @@ func (n *NoteHandler) AddNoteHandler() http.HandlerFunc {
 	}
 }
 
+// GetNotesHandler fetches notes from specified user.
 func (n *NoteHandler) GetNotesHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		userID := r.Context().Value(middleware.UserIDKey).(int)
+
 		notes, err := n.noteUseCase.GetNotesByUserID(userID)
 		if err != nil {
 			fmt.Println(err)
 			http.Error(w, "Failed to fetch notes", http.StatusInternalServerError)
 			return
 		}
-		// if err := rows.Err(); err != nil {
-		// 	http.Error(w, "Error during rows iteration", http.StatusInternalServerError)
-		// 	return
-		// }
 
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(notes)
 	}
 }
 
+// GetAllNotesHandler fetches all notes (admin access)
 func (n *NoteHandler) GetAllNotesHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		notes, err := n.noteUseCase.GetAllNotes()

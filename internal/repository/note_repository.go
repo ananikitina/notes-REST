@@ -48,6 +48,7 @@ func (n *noteRepository) GetByUserID(userID int) ([]models.Note, error) {
 	return notes, rows.Err()
 }
 
+// GetAllNotes retrieves all notes (admin access).
 func (n *noteRepository) GetAllNotes() ([]models.Note, error) {
 	rows, err := n.DB.Query("SELECT id, content, user_id, created_at FROM notes")
 	if err != nil {

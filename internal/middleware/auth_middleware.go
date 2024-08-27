@@ -8,7 +8,7 @@ import (
 	"github.com/ananikitina/notes-rest/internal/domain"
 )
 
-// Define a custom type for context keys
+// A custom type for context keys
 type key int
 
 const (

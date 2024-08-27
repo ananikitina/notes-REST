@@ -20,11 +20,6 @@ func NewJWTService(cfg *config.Config) domain.JWTServiceInterface {
 	return &JWTService{secret: cfg.JWTSecret, issuer: "notes-rest"}
 }
 
-// type Claims struct {
-// 	UserID int `json:"user_id"`
-// 	jwt.RegisteredClaims
-// }
-
 // GenerateToken creates a JWT token for a user.
 func (j *JWTService) GenerateToken(userID int, userRole string) (string, error) {
 	claims := &domain.Claims{
