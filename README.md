@@ -55,6 +55,19 @@ The project is a REST API service developed in the Go language, which provides a
 
 3. The API will be available at `http://localhost:8080`.
 
+## Request Formats
+
+- **POST /register** - Create a new user.
+- **POST /login** - User authentication and JWT acquisition (the token returned in the response must be saved).
+- **POST /note** - Add a note for the user.
+- **GET /notes** - Retrieve the user's notes.
+- **GET /allnotes** - Retrieve all notes (admin only).
+
+Input data should be in JSON format.
+
+When testing the /note, /notes, and /allnotes routes, include an **Authorization** header with the value **Bearer token**, where token is the JWT obtained during login.
+
+If a spelling error is detected, the note will not be saved to the database, and an error with detailed validation results will be returned.
 ## Postman Collection
 
 You can import the Postman collection for convenient API testing. The collection file is available in the root of the project: `./Notes REST.postman_collection.json`.
